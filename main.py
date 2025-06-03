@@ -7,7 +7,7 @@ import scipy
 def find_intersection(x1_array, y1_array, x2_array, y2_array, x0):
         func_1 = lambda x: interp(x, x1_array, y1_array)
         func_2 = lambda x: interp(x, x2_array, y2_array)
-        real_x = scipy.optimize.fsolve(lambda x: func_1(x) - func_2(x), x0 * 1.5, xtol=1e-2)
+        real_x = scipy.optimize.fsolve(lambda x: func_1(x) - func_2(x), x0 * 1.1)
         return [abs(real_x), func_1(real_x)]
 
 data = {
