@@ -5,10 +5,10 @@ import matplotlib.pyplot as plt
 import scipy
 
 def find_intersection(x1_array, y1_array, x2_array, y2_array, x0):
-        func_1 = lambda x: interp(x, x1_array, y1_array)
-        func_2 = lambda x: interp(x, x2_array, y2_array)
-        real_x = scipy.optimize.fsolve(lambda x: func_1(x) - func_2(x), x0 * 1.1)
-        return [abs(real_x), func_1(real_x)]
+        func_1 = lambda x: interp(x, x1_array, y1_array) if x >= 0 else 0
+        func_2 = lambda x: interp(x, x2_array, y2_array) if x >= 0 else -1000
+        real_x = scipy.optimize.fsolve(lambda x: func_1(x) - func_2(x), x0, xtol=1e-3)
+        return [real_x, func_1(real_x)]
 
 data = {
     "phi_min": 1.60797e-5,
@@ -102,6 +102,11 @@ fig = plt.figure()
 # ax = fig.add_subplot()
 plt.plot(airflows, pressures, color="green")
 plt.plot(airflows, curve)
+
+
+# test
+# test = array([i for i in range(-50_000, 50_000, 1000)])
+# plt.plot(test, interp(test, airflows, curve))
 plt.scatter(air_flow, pressure)
 
 rx, ry = find_intersection(
@@ -115,6 +120,7 @@ plt.scatter(rx, ry)
 plt.xlabel("Расход воздуха [м³/ч]")
 plt.ylabel("Давление [Па]")
 plt.ylim(0, max(pressures) * 1.1)
+plt.xlim(0, max(airflows) * 1.1)
 plt.title('Кривая вентилятора')
 plt.grid(True)
 
