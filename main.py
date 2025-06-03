@@ -2,13 +2,19 @@ import pandas as pd
 import streamlit as st
 from numpy import pi, array, interp
 import matplotlib.pyplot as plt
-import scipy
 
-def find_intersection(x1_array, y1_array, x2_array, y2_array, x0):
-        func_1 = lambda x: interp(x, x1_array, y1_array) if x >= 0 else 0
-        func_2 = lambda x: interp(x, x2_array, y2_array) if x >= 0 else -1000
-        real_x = scipy.optimize.fsolve(lambda x: func_1(x) - func_2(x), x0, xtol=1e-3)
-        return [real_x, func_1(real_x)]
+def find_intersection(x1_array, y1_array, x2_array, y2_array, x0, min_rate, max_rate):
+        func_1 = lambda x: interp(x, x1_array, y1_array) #if x >= 0 else -1e40
+        func_2 = lambda x: interp(x, x2_array, y2_array) #if x >= 0 else -1e50
+        # st.write(func_1(x0)-func_2(x0))
+        # real_x = scipy.optimize.fsolve(lambda x: func_1(x) - func_2(x), x0, xtol=1e-4)
+        # st.write(real_x)
+        # st.write(func_1(real_x)-func_2(real_x))
+        for x in range(int(min_rate), int(max_rate) + 1):
+            if abs(func_1(x)-func_2(x)) < 0.5:
+                real_x = x
+                break
+        return [real_x, func_2(real_x)]
 
 data = {
     "phi_min": 1.60797e-5,
@@ -90,23 +96,9 @@ dataframe = pd.DataFrame({
     "gy": given_pressure,
     "curve": curve
 })
-
-# st.line_chart(data=dataframe, x="x", y=["y", "curve"], x_label="Расход воздуха [м³/ч]", y_label="Давление [Па]", color=["#2BBB35", "#305F34"], use_container_width=True)
-
-# fig = px.line(dataframe, x="x", y="y")
-# fig.update_tr
-# fig, ax = plt.subplots()
-# ax.plot(airflows, pressures, color="green")
-# ax.plot(airflows, curve)
 fig = plt.figure()
-# ax = fig.add_subplot()
 plt.plot(airflows, pressures, color="green")
 plt.plot(airflows, curve)
-
-
-# test
-# test = array([i for i in range(-50_000, 50_000, 1000)])
-# plt.plot(test, interp(test, airflows, curve))
 plt.scatter(air_flow, pressure)
 
 rx, ry = find_intersection(
@@ -114,17 +106,14 @@ rx, ry = find_intersection(
         pressures,
         airflows,
         curve,
-        pressure
+        pressure,
+        min(airflows),
+        max(airflows)
 )
 plt.scatter(rx, ry)
 plt.xlabel("Расход воздуха [м³/ч]")
 plt.ylabel("Давление [Па]")
-plt.ylim(0, max(pressures) * 1.1)
-plt.xlim(0, max(airflows) * 1.1)
 plt.title('Кривая вентилятора')
 plt.grid(True)
-
-# find_intersection
-# fig, ax = plt.plot(airflows, pressures, color="green")
 cols[1].pyplot(fig, use_container_width=True)
-cols[0].write(f"<b>Действительные параметры:</b> <br>Расход <b>{int(round(rx[0], 0))}</b> м³/ч, \n<br>Давление <b>{int(round(ry[0], 0))}</b> Па, \n<br>Мощность <b>{round(N(int(round(rx[0], 0))), 3)}</b> кВт", unsafe_allow_html=True)
+cols[0].write(f"<b>Действительные параметры:</b> <br>Расход <b>{int(round(rx, 0))}</b> м³/ч, \n<br>Давление <b>{int(round(ry, 0))}</b> Па, \n<br>Мощность <b>{round(N(int(round(rx, 0))), 3)}</b> кВт", unsafe_allow_html=True)
