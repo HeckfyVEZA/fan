@@ -113,6 +113,8 @@ rx, ry = find_intersection(
 plt.scatter(rx, ry)
 plt.xlabel("Расход воздуха [м³/ч]")
 plt.ylabel("Давление [Па]")
+plt.ylim(0, max(pressures) * 1.1)
+plt.xlim(0, max(airflows) * 1.1)
 plt.title('Кривая вентилятора')
 plt.grid(True)
 cols[1].pyplot(fig, use_container_width=True)
